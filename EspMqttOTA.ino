@@ -2,6 +2,8 @@
 #include <PubSubClient.h>
 #include <Updater.h>
 #include "conf.h"
+#include <PipedStream.h>
+
 
 #define LED_PIN         0
 #define BROKER_ADDR     IPAddress(192,168,0,124)
@@ -11,7 +13,10 @@
 #define ATOMIC_FS_UPDATE
 #define MQTT_MAX_TRANSFER_SIZE 478200
 
-Stream* stream;
+PipedStreamPair pipes;
+PipedStream& buffMQ = pipes.first;
+PipedStream& buffUP = pipes.second;
+
 WiFiClient wireless;
 PubSubClient updater;
 
@@ -30,7 +35,7 @@ void onMqttMessage(char* topic, byte* payload, unsigned int length) {
   Update.setMD5(topic);
   if (Update.begin(length)) {
     unsigned int startTime = millis();
-    if (Update.writeStream(*stream) == length) {
+    if (Update.writeStream(buffUP) == length) {
       Serial.println("Clearing retained message.");
       updater.publish(UPDATE_TOPIC, "");
       unsigned int exTime = millis() - startTime;
@@ -83,7 +88,7 @@ void setup() {
     updater.setServer(BROKER_ADDR, 1883);
     updater.setCallback(onMqttMessage);
     updater.setBufferSize(478200);
-    updater.setStream(*stream);
+    updater.setStream(buffMQ);
     updater.connect("ESP01-test-update-client");
 
     if (! updater.connected()) {

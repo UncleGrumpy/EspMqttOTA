@@ -10,10 +10,10 @@
 //#define WIFI_SSID       "ssid"
 //#define WIFI_PASSWORD   "pass"
 #define UPDATE_TOPIC    "esp01t/update/+"
-#define ATOMIC_FS_UPDATE
+//#define ATOMIC_FS_UPDATE
 #define MQTT_MAX_TRANSFER_SIZE 478200
 
-PipedStreamPair pipes;
+PipedStreamPair pipes(478200);
 PipedStream& buffMQ = pipes.first;
 PipedStream& buffUP = pipes.second;
 
@@ -43,6 +43,7 @@ void onMqttMessage(char* topic, byte* payload, unsigned int length) {
       Update.end();
     } else {
       Serial.println("Failed to apply update!");
+      Update.printError(Serial);
       Serial.println("Clearing retained message.");
       updater.publish(UPDATE_TOPIC, "");
     }
@@ -67,6 +68,8 @@ void setup() {
     Serial.begin(115200);
     delay(50);
     Serial.println("Starting...");
+    buffMQ.write(0);
+    Update.runAsync(true);
 
     // Unique ID must be set!
     byte mac[WL_MAC_ADDR_LENGTH];

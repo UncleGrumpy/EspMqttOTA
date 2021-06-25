@@ -13,7 +13,7 @@
 //#define ATOMIC_FS_UPDATE
 #define MQTT_MAX_TRANSFER_SIZE 478200
 
-PipedStreamPair pipes(478200);
+PipedStreamPair pipes(MQTT_MAX_TRANSFER_SIZE);
 PipedStream& buffMQ = pipes.first;
 PipedStream& buffUP = pipes.second;
 
@@ -65,7 +65,7 @@ void onMqttConnectionFailed() {
 //PubSubClient updater(BROKER_ADDR, 1883, onMqttMessage, client, *stream);
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
     delay(50);
     Serial.println("Starting...");
     buffMQ.write(0);

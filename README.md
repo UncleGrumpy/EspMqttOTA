@@ -16,5 +16,7 @@ DEVICE_NAME/update/MD5_of_UPDATE
 Use the same device identifier as above and replace MD5_of_UPDATE with the MD5 hash of the firmware to be upgraded.
 
 ## Current Status
-Despite setting the  MQTT_MAX_TRANSFER_SIZE and MQTT_MAX_PACKET_SIZE through the setBufferSize(size) function updates are not even acknowledged to exist through error or otherwise... Shorter bogus messages do get through and fail at various stages depending on the message and topic.
+Using the BufferedStreams library for Arduino has things closer to working now. The current problem is that the
+stream is being truncated. But I believe this is a problem in my current implementation, not a limitation of either
+the PubSubClient or BufferedStreams libraries.
 
